@@ -40,6 +40,27 @@ function Distance()
 	Jaro_Winkler: function(m, t, str1, str2, l, w){
 		var jaro = this.Jaro(m,t,str1, str2);
 		return jaro + (l * w * (1 - jaro));
+	},
+	Manhatten: function(x, y){
+		if(x.length == y.length){
+			var distance = 0
+			for(var i in x)
+				distance += Math.abs(x[i] - y[i])
+			return distance
+		}
+	},
+	Minkowski: function(x, y, p){
+		if(x.length == y.length){
+			var distance = 0
+			console.log()
+			for(i in x){
+				distance += Math.pow(Math.abs(x[i] - y[i]),p)
+			}
+			return Math.pow(distance, 1/p)
+		}
 	}
  }
 }
+
+var d = new Distance().Manhatten([1,7,5,1,2,5,4], [2,7,5,6,2,1,9])
+console.log(d)
