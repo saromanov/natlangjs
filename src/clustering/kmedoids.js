@@ -8,11 +8,10 @@ randpoints - define randomly number of poinds in data as medoids
 data - array of pair of points
 iterations - number of swapping medoids and non-medoids
 */
-function KMedoids(data, centroids, randpoints, iterations){
+function KMedoids(data, randpoints, iterations, centroids){
 		this.iters = iterations
 		this.centroids = centroids,
 		this.nummedoids = randpoints
-		//this.medoids = [[3,4], [7,4]]
 		this.data = data
 }
 
@@ -21,7 +20,10 @@ KMedoids.prototype = {
 		Init this model - i.e randomly choice medoids and remove it from data
 	*/
 	init: function(){
-		this.medoids = this.choice_medoids(this.nummedoids)
+		if(this.centroids == undefined)
+			this.medoids = this.choice_medoids(this.nummedoids)
+		else
+			this.medoids = this.centroids
 		this.clusters = this.init_clusters(this.medoids)
 	},
 
@@ -51,9 +53,7 @@ KMedoids.prototype = {
 		var old_medoid_value = Math.floor(Math.random()*this.medoids.length)
 		var old_medoid = this.medoids[old_medoid_value]
 		this.data.push(old_medoid)
-		//console.log('BEFORE: ', this.medoids, old_medoid_value)
 		this.medoids.splice(old_medoid_value,1)
-		//console.log('AFTER: ', this.medoids)
 		this.medoids.push(new_medoid)
 	},
 
