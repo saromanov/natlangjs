@@ -19,14 +19,43 @@ Load.prototype = {
 	//Frequency dictionary for Russian language
 	//http://dict.ruslang.ru/freq_faq.html
 	freqrnc2011: function(){
-		var d_data = fs.readFileSync(path.resolve("..") + '/data/freqrnc2011.csv', 'utf-8').split('\n')
-		var result = []
-		for(var d in d_data){
-			result.push(d_data[d].split('\t'))
-		}
+		return convertData(LoadDataInner('/data/freqrnc2011.csv', 'utf-8', '\n', '\t'));
 
-		toBinaryTree(result, 2)
-		return {
+	},
+
+	//Load Part Of Speech English Dictionary
+	//http://icon.shef.ac.uk/Moby/mpos.html
+	mpos: function(){
+		var compfunction = function(data){
+			if(data[1] != undefined)
+				return [data[0], data[1].split("")];
+			else
+				return [data[0]];
+		}
+		return convertData(LoadDataInner('/data/mpos/mobyposi.i', 'ascii', '\r', 'W', compfunction));
+	},
+
+	//Load from txt or similar format plain text
+	textData: function(patht){
+		return fs.readFileSync(patht, 'utf-8').split('/n');
+	}
+}
+
+function LoadDataInner(pathd, encode, splitter1, splitter2, func){
+	var d_data = fs.readFileSync(path.resolve("..") + pathd, encode).split(splitter1)
+	var result = []
+	for(var d in d_data){
+		if(func != undefined){
+			result.push(func(d_data[d].split(splitter2)));
+		}
+		else
+			result.push(d_data[d].split(splitter2));
+	}
+	return result;
+}
+
+function convertData(result){
+	return {
 			data: function(){
 				return result;
 			},
@@ -37,7 +66,6 @@ Load.prototype = {
 				return toHashTable(result)
 			}
 		}
-	}
 }
 
 //Represent CSV data in Binary Tree

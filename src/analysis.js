@@ -14,9 +14,6 @@ TextAnalysis.prototype = {
 
 		return 1 - WithoutTags(this.dictionary)/this.countwords
 	},
-	dict: function(){
-		return WithoutTags(this.dictionary)/this.countwords
-	},
 
 	//Return list of popular words
 	byPopular: function(){
@@ -114,6 +111,11 @@ function DictionaryOfTags(documents, lang){
 
 		return result;
 	}
+
+	//From http://corpus2.byu.edu/coca/files/100k_samples.txt
+	if(lang == 'eng'){
+
+	}
 }
 
 function WithoutTags(dictionary){
@@ -172,4 +174,5 @@ function ByPopular(dictionary){
 	}
 	return result;
 }
+
 
