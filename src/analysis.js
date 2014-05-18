@@ -3,6 +3,19 @@ var Load = require('./io')
 
 module.exports = TextAnalysis
 
+function TextAnalysis(documents, nlang){
+	var check = (typeof documents) == 'string';
+	if(check)
+		this.documents = PrepareDocuments([documents]);
+	else
+		this.documents = documents
+	this.nlang = nlang
+	this.countwords = CountWords(this.documents);
+	this.dictionary = DictionaryOfTags(this.documents, nlang)
+	if(nlang == 'rus')
+		this.dict_freq = new Load().freqrnc2011().tohashtable()
+}
+
 
 //Tokenize By Part Of Speech
 TextAnalysis.prototype = {
@@ -29,6 +42,21 @@ TextAnalysis.prototype = {
 	getPairsByPOS: function(pos1, pos2){
 		tokens = this.TokenizeByPOS();
 		return PairsByPos(tokens, pos1, pos2);
+	},
+	//Count how many russian and english words in documents
+	getCountRusEngWords: function(){
+		return CountRusEngWords(this.documents);
+	},
+
+	/*Count how many words from language A and B
+		For example:
+		documents - list of documents
+		LanguageA = {'pattern': '[a-zA-Z]+', 'title': 'eng', 'toall': 'engtoall'}
+		LanguageB (Another language)
+	*/
+
+	getCountDiffLanguageWords: function(){
+
 	}
 }
 
@@ -112,7 +140,6 @@ function DictionaryOfTags(documents, lang){
 		return result;
 	}
 
-	//From http://corpus2.byu.edu/coca/files/100k_samples.txt
 	if(lang == 'eng'){
 
 	}
@@ -132,14 +159,6 @@ function CountWords(documents){
 		  .reduce(function(a, b){ return a + b;});
 }
 
-function TextAnalysis(documents, nlang){
-	this.documents = documents
-	this.nlang = nlang
-	this.countwords = CountWords(documents);
-	this.dictionary = DictionaryOfTags(documents, nlang)
-	if(nlang == 'rus')
-		this.dict_freq = new Load().freqrnc2011().tohashtable()
-}
 
 function PairsByPos(dictionary, pos1, pos2){
 	var pairs = []
@@ -174,5 +193,38 @@ function ByPopular(dictionary){
 	}
 	return result;
 }
+
+function CountRusEngWords(ddocuments){
+	var pattern1 = {'pattern':'[a-zA-Z]+', 'title': 'eng', 'toall':'engtoall' };
+	var pattern2 = {'pattern':'[а-яА-Я]+', 'title': 'rus', 'toall':'rustoall' };
+	return CountDiffLanguageWords(ddocuments, pattern1, pattern2);
+}
+
+//Generalization of CountRusEngWords
+function CountDiffLanguageWords(ddocuments, languageA, languageB){
+	var countlangA = 0;
+	var countlangB = 0;
+	var patternA = languageA['pattern'];
+	var patternB = languageB['pattern']
+	var func = function(word, pattern){ return word.match(pattern) != null; };
+	var basic_func = function(word, pattern){
+		return word.filter(function(x){ return func(x, pattern);}).length;
+	}
+	for(var doc in ddocuments){
+		var word = ddocuments[doc];
+		countlangA = basic_func(word, patternA);
+		countlangB = basic_func(word, patternB);
+		countnums = basic_func(word, '[0-9]+');
+	}
+	var allcount = countlangB + countlangA + countnums;
+	var hashd = {};
+	hashd[languageA['title']] = countlangA;
+	hashd[languageB['title']] = countlangB;
+	hashd[languageA['toall']] = countlangA/allcount
+	hashd[languageB['toall']] = countlangB/allcount
+	return hashd;
+}
+
+
 
 
