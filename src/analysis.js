@@ -55,8 +55,12 @@ TextAnalysis.prototype = {
 		LanguageB (Another language)
 	*/
 
-	getCountDiffLanguageWords: function(){
+	getCountDiffLanguageWords: function(languageA, languageB){
+		return CountDiffLanguageWords(this.documents, languageA, languageB);
+	},
 
+	getPreparedDocuments: function(dup){
+		return PrepareDocuments(this.documents, dup);
 	}
 }
 
@@ -88,13 +92,17 @@ function getClearDictionary(dictionary){
 }
 
 //Splitting and other preparation for document
-function PrepareDocuments(documents){
+function PrepareDocuments(documents, dup){
 	var tm = TextManager()
 	var Tokenizer = utils().Tokenizer
 	var result = []
 	for(var i = 0;i < documents.length;++i){
 		var doc = documents[i];
-		result.push(tm.lowercase(Tokenizer(doc)))
+		if(dup==false){
+			result.push(tm.lowercase(tm.removeDuplicates(Tokenizer(doc))));
+		}
+		else
+			result.push(tm.lowercase(Tokenizer(doc)));
 	}
 	return result;
 }
