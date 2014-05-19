@@ -58,9 +58,12 @@ function Distance()
 			}
 			return Math.pow(distance, 1/p)
 		}
+	},
+	mse: function(data1, data2){
+		return data1.map(function(x, i){ return Math.pow(data1[i] - data2[i],2);})
+					.reduce(function(a,b){ return a + b;})/data1.length;
 	}
  }
 }
 
-var d = new Distance().Manhatten([1,7,5,1,2,5,4], [2,7,5,6,2,1,9])
-console.log(d)
+
