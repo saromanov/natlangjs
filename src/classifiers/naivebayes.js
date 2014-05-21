@@ -21,12 +21,12 @@ NaiveBayes.prototype = {
 				for(var v in value){
 					if(value[v] in this.dataset){
 					   var mle = CountParams(this.data, this.simlabels, this.uniquelabels[l], value[v]);
-					   result *= (mle * this.dataset[value[v]] /this.labels[this.uniquelabels[l]]);
+					   result *= Math.log(mle * this.dataset[value[v]] /this.labels[this.uniquelabels[l]]);
 				   }
 				}
-				var result2 = this.labels[this.uniquelabels[l]]/this.countlabels;
-				if(result > maxprob){
-					maxprob = result;
+				var result2 = this.labels[this.uniquelabels[l]]/this.countlabels * Math.exp(result);
+				if(result2 > maxprob){
+					maxprob = result2;
 					maxlabel = this.uniquelabels[l];
 				}
 			}
@@ -42,7 +42,7 @@ function CountData(dataset){
 			if(data[i] in result)
 				result[data[i]] += 1;
 			else
-				result[data[i]] = 0;
+				result[data[i]] = 1;
 		}
 	}
 	return result;
@@ -72,5 +72,5 @@ function CountParams(dataset, labels, labvalue, value)
 			result += 1;
 		 }
 		}
-	return result/labels.length;
+	return result;
 }
