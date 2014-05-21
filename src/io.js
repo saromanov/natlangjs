@@ -38,6 +38,21 @@ Load.prototype = {
 	//Load from txt or similar format plain text
 	textData: function(patht){
 		return fs.readFileSync(patht, 'utf-8').split('/n');
+	},
+	synonymdict: function(){
+		var compfunction = function(data){
+			if (data[1] != undefined){
+				if(data[1].indexOf(',') != -1){
+					return [data[0].split(' ')[0], data[1].split(',')]
+				}
+				return [data[0].split(' ')[0], data[1].split('\r')];
+			}
+			if(data[0][0] == data[0][0].toUpperCase()){
+				//TODO!
+				return data[0];
+			}
+		}
+		return convertData(LoadDataInner('/data/abr2w.txt', 'utf-8', '\n', 'см.', compfunction));
 	}
 }
 
@@ -89,5 +104,6 @@ function toHashTable(data){
 	return hash;
 }
 
+var l = new Load().synonymdict().data();
 
 
