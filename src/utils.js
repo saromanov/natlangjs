@@ -6,7 +6,7 @@ function utils(){
 			return Array.apply(null, Array(n)).map(function () {return 0;});
 		},
 		Tokenizer: function(data){
-			data = data.replace(/,/g,"");
+			data = data.replace(/,|\./g,"");
 			return data.split(' ');
 		},
 		removeDuplicates: function(text){
