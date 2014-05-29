@@ -7,17 +7,16 @@
 
 
 var Distance = require('../distance')
+	utils = require('../utils')
 function FuzzySet(dataset, numclusters, q) {
 	//q - fixed param (1.5)
 
 	this.dataset = dataset;
 	this.numclusters = numclusters;
-	this.matrix = InitMatrixData(dataset.length, this.numclusters);
 	this.q = q;
 	result = InitCenters(this.dataset, this.numclusters);
 	this.centers = result[0];
 	this.dataset = result[1];
-	console.log(this.centers);
 }
 
 FuzzySet.prototype = {
@@ -33,7 +32,7 @@ FuzzySet.prototype = {
 	}
 }
 
-//
+//to remove
 function InitMatrixData(values, numclusters){
 	var result = []
 	for(var i = 0;i < values;++i){
@@ -48,40 +47,36 @@ function InitMatrixData(values, numclusters){
 
 }
 
-
 //Random initialize centers
 function InitCenters(datapoints, numclusters){
 	var centers = [];
 	for(var i = 0;i < numclusters;++i){
-		var idx = Math.floor(Math.random(datapoints.length-1)*100);
+		var idx = Math.floor(Math.random() * (datapoints.length-1));
 		centers.push(datapoints[idx]);
-		datapoints.splice(idx);
+		datapoints.splice(idx, 1);
 	}
 	return [centers, datapoints];
 }
 
-function UpdateMembership(matrix, params, clusters, fuzzyidx, distance){
+function UpdateMembership(params, clusters, fuzzyidx, distance){
 	if(clusters.length == 0)
 		throw "Empty list of clusters";
 	if(params.length == 0)
 		throw "Empty list of dataset";
 	if(distance == undefined)
 		throw "Distance function is not defined";
-	if(matrix.length == 0)
-		throw "Matrix is not defined";
-
-	for(var i = 0; i < matrix.length;++i){
-		for(var j = 0;j < matrix.length;++j){
-			var resuld_d = 0;
-				//resuld_d += Math.pow(distance(ij, ik), (2/(fuzzyidx-1)));
-				var upper = DistHelpful(params[j], clusters[i], distance, fuzzyidx);
+	var matrix = [];
+	for(var i = 0; i < params.length;++i){
+		var tempmatrix = [];
+		for(var j = 0;j < clusters.length;++j){
+				var upper = DistHelpful(params[i], clusters[j], distance, fuzzyidx);
 				var sum_lower = 1;
 				for(var k = 0;k < clusters.length;++k){
-					sum_lower += DistHelpful(params[j], clusters[k], distance, fuzzyidx);
+					sum_lower += DistHelpful(params[i], clusters[k], distance, fuzzyidx);
 				}
-
-			matrix[i][j] = upper/sum_lower;
+			tempmatrix.push(1/(Math.pow((upper/sum_lower), (2/(fuzzyidx-1)))));
 		}
+		matrix.push(tempmatrix);
 	}
 	return matrix;
 }
@@ -91,29 +86,41 @@ function DistHelpful(value, cluster, distance, fuzzyidx){
 }
 
 
-function UpdatClusterCenters(matrix, points, fuzzyidx){
+function UpdateClusterCenters(matrix, points, numclusters, fuzzyidx){
+	var clusters = [];
+	for(var k = 0; k < numclusters;++k){
+        var upper = 0;
+        var lower = 0;
+		for(var j = 0;j < points.length;++j){
+		  upper += Math.pow(matrix[j][k], fuzzyidx) * points[j];
+		  lower += Math.pow(matrix[j][k], fuzzyidx);
+		   	//console.log(i, j, matrix[i][j], lower);
+		}
+	   clusters.push(upper/lower);
+	 }
+	return clusters;
+}
+
+
+function ComputeFCM(points,centers, threshold, iters, fuzzyidx, distancefunc){
+	var matrix = [];
+	for(var i = 0;i < iters;++i){
+		matrix = UpdateMembership(points, centers, fuzzyidx, distancefunc);
+		centers = UpdateClusterCenters(matrix, points, centers.length, fuzzyidx);
+		minvalues = Minimize(matrix, points, centers);
+	}
+	return centers;
+}
+
+//Probably add to optimiz module
+function Minimize(matrix, data, cluster){
 	var result = 0;
-	for(var i = 0;i < points;++i){
-		for(var j = 0;j < this.numclusters;++j){
-			result += (Math.pow(matrix[i][j], fuzzyidx) * points[i])/Math.pow(matrix[i][j], fuzzyidx);
+	for(var i = 0;i < data.length;++i){
+		var vector = matrix[i];
+		for(var j = 0;j < cluster.length;++j){
+			result += matrix[i][j] * Euclidean(data[i], cluster[j]);
 		}
 	}
 	return result;
 }
 
-function ComputeFCM(matrix, centers, points, threshold, iters, fuzzyidx, distancefunc){
-	for(var i = 0;i < iters;++i){
-		matrix = UpdateMembership(matrix, points, centers, fuzzyidx);
-		centers = UpdatClusterCenters(matrix, points, fuzzyidx);
-	}
-}
-
-//Probably add to optimiz module
-function Minimize(matrix, data, cluster){
-	for(var i = 0;i < matrix.length;+i){
-		var vector = matrix[i];
-		for(var j = 0;j < vector.length;++j){
-
-		}
-	}
-}
