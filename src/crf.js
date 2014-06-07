@@ -1,5 +1,6 @@
 //http://people.cs.umass.edu/~mccallum/papers/mccallum-conll2003.pdf
 //http://www.inference.phy.cam.ac.uk/hmw26/papers/crf_intro.pdf
+//http://www.seas.upenn.edu/~strctlrn/bib/PDF/crf.pdf
 
 
 //words - sequence of words
@@ -52,6 +53,29 @@ function MaximumLikelihood(training, features, lambda){
 		result += (check + res1);
 	}
 	return result;
+}
+
+function MaximumLogLikelihood(sequence, labels, theta, features){
+	var result = 0;
+	for(var i = 0;i < sequence.length;++i){
+		result += Math.log(Prob(sequence[i], labels, features, theta));
+	}
+	return result;
+}
+
+
+//TODO
+function Viterbi(states, prob, pos, labels){
+	//todo: generate weights for model
+	var weights = [];
+	var pos = prob[pos];
+	for(var i = 0;i < states.length;++i){
+		var temp = [];
+		for(var j = 0;j < labels.length;++j){
+			temp[j] = states[i][j];
+		}
+		pos = temp;
+	}
 }
 
 //Implement log-likelihood gradient
