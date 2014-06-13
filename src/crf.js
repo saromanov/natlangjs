@@ -1,6 +1,7 @@
 //http://people.cs.umass.edu/~mccallum/papers/mccallum-conll2003.pdf
 //http://www.inference.phy.cam.ac.uk/hmw26/papers/crf_intro.pdf
 //http://www.seas.upenn.edu/~strctlrn/bib/PDF/crf.pdf
+//http://homepages.inf.ed.ac.uk/csutton/publications/crftutv2.pdf
 
 
 //words - sequence of words
@@ -26,6 +27,18 @@ function Prob(word, labels, features, lambda){
 		}
 	}
 	return Exp(result)/Exp(Norm(word, labels, states, features));
+}
+
+function GeneralCRF(words, labels, funcs, thetas){
+	var result = 0;
+	for(var j = 0;j < funcs.length;++j){
+		var temp = 1;
+		for(var i = 0;i < words.length;++i){
+			temp += thetas[i] * funcs[i](words[i], labels[i]);
+		}
+		result *= temp;
+	}
+	return result/Norm(words, labels, thetas, funcs);
 }
 
 //Normalization factor
@@ -55,6 +68,8 @@ function MaximumLikelihood(training, features, lambda){
 	return result;
 }
 
+
+//Compute log-likelihood objective function
 function MaximumLogLikelihood(sequence, labels, theta, features){
 	var result = 0;
 	for(var i = 0;i < sequence.length;++i){
@@ -64,11 +79,14 @@ function MaximumLogLikelihood(sequence, labels, theta, features){
 }
 
 
+
+//Algorithms for inference (Viterbi, forward-backward)
 //TODO
 function Viterbi(states, prob, pos, labels){
 	//todo: generate weights for model
 	var weights = [];
 	var pos = prob[pos];
+	var zeros = new util().zeros(states.length);
 	for(var i = 0;i < states.length;++i){
 		var temp = [];
 		for(var j = 0;j < labels.length;++j){
@@ -78,10 +96,37 @@ function Viterbi(states, prob, pos, labels){
 	}
 }
 
+
+//Computing marginal distributions
+function ForwardBackward(words, labels, states, features){
+	var forward = Forward(words, labels, states, features);
+	var backward = Backward(words, labels, states, features);
+}
+
 //Implement log-likelihood gradient
 
 //Compute forward values
-function Fowrward(){
+function Forward(words, labels, states, init, features){
+	var matrix = initValue(init);
+	for(var i = 0;i < words.length;++i){
+		var tmp = [];
+		for(var j = 0; j < labels.length;++j){
+			if()
+			matrix[i][j] = features(words[i-1], labels[j-1], states[i-1][j-1]);
+		}
+	}
+	return matrix;
+}
+
+function initValue(init, M, N){
+	var matrix = [];
+	matrix.push(Array.apply(null, Array(n)).map(function () {return init;}))
+	for(var i = 1; i < M;++i)
+			matrix.push(new util().zeros(N));
+	return matrix;
+}
+
+function Backward(words, labels, states, features){
 
 }
 
