@@ -9,17 +9,28 @@ function Count(arr, word){
 
 
 
-function TFIDF(word, doc, documents){
-	var tf = function(word, doc){
-		return Count(doc, word)/doc.length
-	}
 
-	var idf = function(word, documents){
-		return Math.log(documents.length/utils()
+function TFIDF(word, doc, documents){
+
+	return {
+		tf: function(word, doc){
+			return Count(doc, word)/doc.length
+		},
+
+		idf: function(word, documents){
+			console.log(utils()
+								.zeros(documents.length)
+								.map(function(i, j){return Count(documents[j], word)})
+								.reduce(function(i,j){return i + j},0))
+			return Math.log(documents.length/utils()
 								.zeros(documents.length)
 								.map(function(i, j){return Count(documents[j], word)})
 								.reduce(function(i,j){return i + j},0));
+		},
+
+		tfidf: function(documents, doc, word){
+			tf(word, doc) * idf(word, documents);
+		}
 	}
 
-	return tf(word, doc) * idf(word, documents);
 }

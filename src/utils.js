@@ -6,8 +6,12 @@ function utils(){
 			return Array.apply(null, Array(n)).map(function () {return 0;});
 		},
 		Tokenizer: function(data){
-			data = data.replace(/,|\./g,"");
-			return data.split(' ');
+			if(data.length > 0){
+				if(typeof(data[0]) == 'string')
+					return Tokens(data);
+				if(typeof(data[0]) == 'object')
+					return data.map(function(d){ return Tokens(d[0])});
+			}
 		},
 		removeDuplicates: function(text){
 			return text.filter(function(elem, pos){
@@ -36,8 +40,17 @@ function utils(){
 			}
 			return result;
 
+		},
+
+		mostFrequent: function(doc){
+			
 		}
 	}
+}
+
+
+var Tokens = function(data){
+	return data.replace(/,|\./g,"").split(' ');
 }
 
 
