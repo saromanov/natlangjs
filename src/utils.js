@@ -44,6 +44,13 @@ function utils(){
 
 		mostFrequent: function(doc){
 			
+		},
+		
+		sigmoid: function(data){
+			if(typeof(data) == 'number')
+				return Sigmoid(data);
+			else
+				return data.map(Sigmoid);
 		}
 	}
 }
@@ -53,4 +60,6 @@ var Tokens = function(data){
 	return data.replace(/,|\./g,"").split(' ');
 }
 
-
+var Sigmoid = function(x){
+	return 1/(1 + Math.exp(-x));
+}
