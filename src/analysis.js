@@ -1,6 +1,10 @@
 var Load = require('./io')
 	utils = require('./utils')
 
+
+/*
+	Basic functions for text analysis (with dictionary)
+*/
 module.exports = TextAnalysis
 
 function TextAnalysis(documents, nlang){
@@ -12,6 +16,7 @@ function TextAnalysis(documents, nlang){
 	this.nlang = nlang
 	this.countwords = CountWords(this.documents);
 	this.dictionary = DictionaryOfTags(this.documents, nlang)
+	console.log("NEW: ", this.dictionary);
 	if(nlang == 'rus')
 		this.dict_freq = new Load().freqrnc2011().tohashtable()
 }
@@ -30,7 +35,13 @@ TextAnalysis.prototype = {
 
 	//Return list of popular words
 	byPopular: function(){
-		return ByPopular(this.dictionary);
+		console.log(this.dictionary);
+		return ByPopular(this.dictionary)
+	},
+
+	//Return list of popular pairs
+	byPopularPairs: function(){
+		return ByPopularPairs(this.dictionary)
 	},
 
 	/*
@@ -65,9 +76,7 @@ TextAnalysis.prototype = {
 }
 
 
-
-function TextManager()
-{
+var TextManager = function(){
 	return {
 		lowercase: function(x){
 			if(typeof x == 'string')
@@ -149,7 +158,7 @@ function DictionaryOfTags(documents, lang){
 	}
 
 	if(lang == 'eng'){
-
+		//TODO
 	}
 }
 
@@ -193,13 +202,17 @@ function PairsByPos(dictionary, pos1, pos2){
 	return result;
 }
 
-function ByPopular(dictionary){
+var ByPopular = function(dictionary){
 	var cleardict = getClearDictionary(dictionary);
 	var result = []
 	for(var c in cleardict){
 		result.push(cleardict[c].sort(function(a,b){ return parseFloat(a[2]) < parseFloat(b[2]);}))
 	}
 	return result;
+}
+
+var ByPopularPairs = function(dictionary){
+
 }
 
 function CountRusEngWords(ddocuments){
@@ -232,7 +245,4 @@ function CountDiffLanguageWords(ddocuments, languageA, languageB){
 	hashd[languageB['toall']] = countlangB/allcount
 	return hashd;
 }
-
-
-
 
